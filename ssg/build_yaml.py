@@ -2953,10 +2953,12 @@ class BuildLoader(DirectoryLoader):
 
         self.sce_metadata = None
         if sce_metadata_path and os.path.getsize(sce_metadata_path):
-            self.sce_metadata = json.load(open(sce_metadata_path, 'r'))
+            with open(sce_metadata_path, 'r') as f:
+                self.sce_metadata = json.load(f)
         self.inspec_metadata = None
         if inspec_metadata_path and os.path.getsize(inspec_metadata_path):
-            self.inspec_metadata = json.load(open(inspec_metadata_path, 'r'))
+            with open(inspec_metadata_path, 'r') as f:
+                self.inspec_metadata = json.load(f)
         self.components_dir = None
         self.rule_to_components = None
 

@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import os
 import os.path
 import json
+import sys
 
 from .build_yaml import Rule, DocumentationNotComplete
 from .jinja import process_file
@@ -16,20 +17,21 @@ def write_inspec_file(content, output_dir, filename):
         output_file.write(content)
 
 
-def load_inspec_and_metadata(file_path, local_env_yaml):
-    raw_content = process_file(file_path, local_env_yaml)
+def _parse_platform_metadata(raw_content):
     metadata = {}
-    check_content = []
-
+    check_lines = []
     for line in raw_content.splitlines():
         if line.startswith('# platform = '):
             _, value = line[2:].split('=', maxsplit=1)
             metadata['platform'] = value.strip()
         else:
-            check_content.append(line)
+            check_lines.append(line)
+    return "\n".join(check_lines), metadata
 
-    content = "\n".join(check_content)
-    return content, metadata
+
+def load_inspec_and_metadata(file_path, local_env_yaml):
+    raw_content = process_file(file_path, local_env_yaml)
+    return _parse_platform_metadata(raw_content)
 
 
 class InSpecBuilder(object):
@@ -60,16 +62,21 @@ class InSpecBuilder(object):
             self.env_yaml, None, self.templates_dir,
             remediations_dir, self.output_dir, None, None)
 
-    def _build_static_inspec_check(self, rule_id, file_path, local_env_yaml):
-        if rule_id in self.already_loaded:
-            return
+    def _is_applicable(self, metadata):
+        product = utils.required_key(self.env_yaml, "product")
+        platform = metadata.get("platform")
+        if platform:
+            return utils.is_applicable_for_product(platform, product)
+        return True
 
+    def _build_static_inspec_check(self, rule_id, file_path, local_env_yaml):
         content, metadata = load_inspec_and_metadata(file_path, local_env_yaml)
 
-        product = utils.required_key(self.env_yaml, "product")
-        if metadata.get("platform"):
-            if not utils.is_applicable_for_product(metadata["platform"], product):
-                return
+        if not self._is_applicable(metadata):
+            return
+
+        if rule_id in self.already_loaded:
+            return
 
         filename = rule_id + ".rb"
         write_inspec_file(content, self.output_dir, filename)
@@ -87,34 +94,29 @@ class InSpecBuilder(object):
         if rule.id_ in self.already_loaded:
             return
 
+        template_name = rule.get_template_name()
+        if template_name not in self.template_builder.templates:
+            return
+
+        template = self.template_builder.templates[template_name]
+        if inspec_lang not in template.langs:
+            return
+
         try:
-            template_name = rule.get_template_name()
-            if template_name not in self.template_builder.templates:
-                return
-
-            template = self.template_builder.templates[template_name]
-            if inspec_lang not in template.langs:
-                return
-
             raw_content = self.template_builder.get_lang_contents_for_templatable(
                 rule, inspec_lang)
-        except Exception:
+        except Exception as e:
+            sys.stderr.write(
+                "WARNING: Failed to render InSpec template for %s: %s\n"
+                % (rule.id_, e))
+            return
+
+        content, metadata = _parse_platform_metadata(raw_content)
+
+        if not self._is_applicable(metadata):
             return
 
         filename = rule.id_ + ".rb"
-        content, metadata = raw_content, {}
-
-        if isinstance(content, str):
-            lines = content.splitlines()
-            check_lines = []
-            for line in lines:
-                if line.startswith('# platform = '):
-                    _, value = line[2:].split('=', maxsplit=1)
-                    metadata['platform'] = value.strip()
-                else:
-                    check_lines.append(line)
-            content = "\n".join(check_lines)
-
         write_inspec_file(content, self.output_dir, filename)
         metadata['filename'] = filename
         self.already_loaded[rule.id_] = metadata

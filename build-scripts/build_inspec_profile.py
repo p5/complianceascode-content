@@ -181,22 +181,44 @@ def build_profile(profile_id, profile_data, metadata, inspec_dir,
         "supports": [{"platform-name": product}],
     }
 
+    summary = re.sub(r'\s+', ' ',
+                     inspec_yml["summary"].replace('\n', ' ').strip())
+    if len(summary) > 120:
+        summary = summary[:120] + "..."
+
+    inspec_yml_out = {
+        "name": inspec_yml["name"],
+        "title": inspec_yml["title"],
+        "maintainer": inspec_yml["maintainer"],
+        "copyright": "ComplianceAsCode contributors",
+        "copyright_email": "scap-security-guide@lists.fedorahosted.org",
+        "license": inspec_yml["license"],
+        "summary": summary,
+        "version": inspec_yml["version"],
+        "supports": inspec_yml["supports"],
+    }
+
     yml_path = os.path.join(profile_dir, "inspec.yml")
-    with open(yml_path, 'w') as f:
-        for key in ["name", "title", "maintainer", "license", "version"]:
-            val = inspec_yml[key]
-            f.write("%s: %s\n" % (key, val))
-        summary = inspec_yml["summary"].replace('\n', ' ').strip()
-        summary = re.sub(r'\s+', ' ', summary)
-        if len(summary) > 120:
-            summary = summary[:120] + "..."
-        f.write("summary: %s\n" % summary)
-        f.write("copyright: ComplianceAsCode contributors\n")
-        f.write("copyright_email: scap-security-guide@lists.fedorahosted.org\n")
-        f.write("supports:\n")
-        for s in inspec_yml["supports"]:
-            for k, v in s.items():
-                f.write("  - %s: %s\n" % (k, v))
+    try:
+        import yaml
+        with open(yml_path, 'w') as f:
+            yaml.dump(inspec_yml_out, f, default_flow_style=False, sort_keys=False)
+    except ImportError:
+        with open(yml_path, 'w') as f:
+            for key, val in inspec_yml_out.items():
+                if isinstance(val, list):
+                    f.write("%s:\n" % key)
+                    for item in val:
+                        if isinstance(item, dict):
+                            first = True
+                            for k, v in item.items():
+                                prefix = "  - " if first else "    "
+                                f.write("%s%s: %s\n" % (prefix, k, v))
+                                first = False
+                        else:
+                            f.write("  - %s\n" % item)
+                else:
+                    f.write("%s: %s\n" % (key, val))
 
 
 if __name__ == "__main__":
