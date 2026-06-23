@@ -1,4 +1,8 @@
 # platform = multi_platform_all
 describe file('{{{ FILEPATH }}}') do
+{{%- if EXISTS %}}
   it { should exist }
+{{%- else %}}
+  it { should_not exist }
+{{%- endif %}}
 end

@@ -1,4 +1,4 @@
 # platform = multi_platform_all
-describe command('systemctl show {{{ UNIT }}} --property={{{ PARAMETER }}}') do
-  its('stdout.strip') { should match(/{{{ PARAMETER }}}={{{ VALUE }}}/) }
+describe command('systemctl show {{{ APPLICATION }}} --property={{{ PARAM }}}') do
+  its('stdout.strip') { should match(/{{{ PARAM }}}={{{ VALUE }}}/) }
 end

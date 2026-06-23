@@ -1,5 +1,5 @@
 # platform = multi_platform_all
-command('lsblk -nlo MOUNTPOINT,RM | grep "1$" | awk "{print $1}"').stdout.strip.split("\n").each do |mp|
+command("lsblk -nlo MOUNTPOINT,RM | grep '1$' | awk '{print $1}'").stdout.strip.split("\n").each do |mp|
   next if mp.empty?
   describe mount(mp) do
     its('options') { should include '{{{ MOUNTOPTION }}}' }

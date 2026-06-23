@@ -1,4 +1,4 @@
 # platform = multi_platform_all
 describe file('{{{ PATH }}}') do
-  its('content') { should match({{{ TEXT }}}) }
+  its('content') { should match(/{{{ TEXT }}}/m) }
 end

@@ -4,7 +4,6 @@ describe kernel_parameter('{{{ SYSCTLVAR }}}') do
   its('value') { should cmp {{{ SYSCTLVAL }}} }
 end
 {{%- elif SYSCTLVAL is not string %}}
-{{% for x in SYSCTLVAL %}}
 describe.one do
 {{% for val in SYSCTLVAL %}}
   describe kernel_parameter('{{{ SYSCTLVAR }}}') do
@@ -12,7 +11,6 @@ describe.one do
   end
 {{% endfor %}}
 end
-{{% endfor %}}
 {{%- else %}}
 describe kernel_parameter('{{{ SYSCTLVAR }}}') do
   its('value') { should_not be_nil }
