@@ -3,12 +3,20 @@
 {{%- if IS_DIRECTORY and FILE_REGEX %}}
 command('find {{{ path }}} -maxdepth 1 -type f -regextype posix-extended -regex "{{{ FILE_REGEX[loop.index0] }}}"').stdout.strip.split("\n").each do |entry|
   describe file(entry) do
-    its('group') { should cmp '{{{ FILEGID }}}' }
+{{%- if GROUP_REPRESENTED_WITH_GID %}}
+    its('gid') { should cmp {{{ GID_OR_NAME }}} }
+{{%- else %}}
+    its('group') { should cmp '{{{ GID_OR_NAME }}}' }
+{{%- endif %}}
   end
 end
 {{%- else %}}
 describe file('{{{ path }}}') do
-  its('group') { should cmp '{{{ FILEGID }}}' }
+{{%- if GROUP_REPRESENTED_WITH_GID %}}
+  its('gid') { should cmp {{{ GID_OR_NAME }}} }
+{{%- else %}}
+  its('group') { should cmp '{{{ GID_OR_NAME }}}' }
+{{%- endif %}}
 end
 {{%- endif %}}
 {{% endfor %}}

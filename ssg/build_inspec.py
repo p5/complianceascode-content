@@ -7,7 +7,7 @@ import json
 from .build_yaml import Rule, DocumentationNotComplete
 from .jinja import process_file
 from .rules import get_rule_dir_id, get_rule_dir_inspecs, find_rule_dirs_in_paths
-from . import utils, products
+from . import utils
 from . import templates as template_module
 
 
@@ -41,20 +41,24 @@ class InSpecBuilder(object):
         self.already_loaded = {}
         self.template_builder = None
 
+    def _get_guide_dirs(self):
+        product_dir = self.env_yaml.get("product_dir", "")
+        benchmark_root = utils.required_key(self.env_yaml, "benchmark_root")
+        guide_dir = os.path.abspath(os.path.join(product_dir, benchmark_root))
+        dirs = [guide_dir]
+        add_content_dirs = self.env_yaml.get("additional_content_directories", [])
+        for add_content_dir in add_content_dirs:
+            dirs.append(os.path.abspath(os.path.join(product_dir, add_content_dir)))
+        return dirs
+
     def _init_template_builder(self):
         if self.template_builder is not None:
             return
-
-        product_yaml = products.Product(self.product_yaml_path)
-        all_rule_dirs = []
-        guide_paths = [os.path.join(product_yaml.guide_dir)]
-        for guide_path in guide_paths:
-            if os.path.isdir(guide_path):
-                all_rule_dirs.extend(find_rule_dirs_in_paths([guide_path]))
-
+        remediations_dir = os.path.join(self.output_dir, "_remediations_unused")
+        utils.mkdir_p(remediations_dir)
         self.template_builder = template_module.Builder(
             self.env_yaml, None, self.templates_dir,
-            None, self.output_dir, None, None)
+            remediations_dir, self.output_dir, None, None)
 
     def _build_static_inspec_check(self, rule_id, file_path, local_env_yaml):
         if rule_id in self.already_loaded:
@@ -140,8 +144,7 @@ class InSpecBuilder(object):
     def build(self):
         utils.mkdir_p(self.output_dir)
 
-        product_yaml = products.Product(self.product_yaml_path)
-        guide_paths = [os.path.join(product_yaml.guide_dir)]
+        guide_paths = self._get_guide_dirs()
         all_rule_dirs = []
         for guide_path in guide_paths:
             if os.path.isdir(guide_path):
