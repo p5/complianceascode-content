@@ -1,0 +1,4 @@
+# platform = multi_platform_all
+describe service('{{{ MOUNTNAME }}}.mount') do
+  it { should be_enabled }
+end

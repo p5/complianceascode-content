@@ -1,0 +1,4 @@
+# platform = multi_platform_all
+describe command('dconf read {{{ DCONFPATH }}}{{{ KEY }}}') do
+  its('stdout.strip') { should cmp '{{{ VALUE }}}' }
+end

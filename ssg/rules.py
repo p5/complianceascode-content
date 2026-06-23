@@ -197,6 +197,43 @@ def get_rule_dir_sces(dir_path, product=None):
     return results + common_results
 
 
+def get_rule_dir_inspecs(dir_path, product=None):
+    """
+    Get a list of InSpec checks contained in a rule directory.
+
+    Only returns InSpec checks which exist.
+
+    Args:
+        dir_path (str): The path to the rule directory.
+        product (str, optional): The product name to filter checks. If None, returns all checks.
+
+    Returns:
+        list: A list of paths to applicable InSpec check files.
+    """
+    if not is_rule_dir(dir_path):
+        return []
+
+    inspec_dir = os.path.join(dir_path, "inspec")
+    if not os.path.isdir(inspec_dir):
+        return []
+
+    results = []
+    common_results = []
+    for inspec_file in sorted(os.listdir(inspec_dir)):
+        file_name, ext = os.path.splitext(inspec_file)
+        inspec_path = os.path.join(inspec_dir, inspec_file)
+
+        if ext == ".rb" and applies_to_product(file_name, product):
+            if file_name == 'shared':
+                common_results.append(inspec_path)
+            elif file_name != product:
+                common_results.insert(0, inspec_path)
+            else:
+                results.append(inspec_path)
+
+    return results + common_results
+
+
 def find_rule_dirs(base_dir):
     """
     Generator which yields all rule directories within a given base_dir, recursively.

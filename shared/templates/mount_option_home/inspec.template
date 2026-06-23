@@ -1,0 +1,5 @@
+# platform = multi_platform_all
+describe mount('/home') do
+  it { should be_mounted }
+  its('options') { should include '{{{ MOUNTOPTION }}}' }
+end

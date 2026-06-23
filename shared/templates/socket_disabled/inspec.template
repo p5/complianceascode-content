@@ -1,0 +1,9 @@
+# platform = multi_platform_all
+describe service('{{{ SOCKETNAME }}}') do
+  it { should_not be_enabled }
+end
+
+describe service('{{{ DAEMONNAME }}}') do
+  it { should_not be_enabled }
+  it { should_not be_running }
+end

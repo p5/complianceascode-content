@@ -65,6 +65,7 @@ option(SSG_BASH_SCRIPTS_ENABLED "If enabled, Bash remediation scripts for each p
 option(SSG_BUILD_DISA_DELTA_FILES "If enabled, If the product has automated content from DISA for its STIG a tailoring file will be created with rules not covered by DISA's content enabled." TRUE)
 option(SSG_JINJA2_CACHE_ENABLED "If enabled, the jinja2 templating files will be cached into bytecode. Also see SSG_JINJA2_CACHE_DIR." TRUE)
 option(SSG_SCE_ENABLED "If enabled, additional SCE audit content will be enabled alongside OVAL-based auditing." FALSE)
+option(SSG_INSPEC_ENABLED "If enabled, InSpec check profiles will be built alongside OVAL-based auditing." FALSE)
 option(SSG_SRG_XLSX_EXPORT "If enabled, an XLSX of SRG Export will be ceated." FALSE)
 option(SSG_SEPARATE_SCAP_FILES_ENABLED "If enabled, separate SCAP files (OVAL, XCCDF, CPE dict, ...) will be installed alongside the source data-streams" TRUE)
 option(SSG_BUILT_TESTS_ENABLED "If enabled, Automatus tests will be built" FALSE)

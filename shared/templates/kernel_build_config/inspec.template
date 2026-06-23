@@ -1,0 +1,5 @@
+# platform = multi_platform_all
+kernel_config = command('zcat /proc/config.gz 2>/dev/null || cat /boot/config-$(uname -r) 2>/dev/null')
+describe kernel_config do
+  its('stdout') { should match(/^{{{ CONFIG }}}={{{ VALUE }}}$/) }
+end

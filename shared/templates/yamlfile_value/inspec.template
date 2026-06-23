@@ -1,0 +1,4 @@
+# platform = multi_platform_all
+describe yaml('{{{ FILEPATH }}}') do
+  its({{{ YAMLPATH }}}) { should cmp '{{{ VALUE }}}' }
+end

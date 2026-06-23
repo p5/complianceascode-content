@@ -1,0 +1,15 @@
+# platform = multi_platform_all
+{{%- if MISSING_PARAMETER_PASS %}}
+only_if('sshd_config parameter {{{ PARAMETER }}} may be absent') do
+  sshd_config.params('{{{ PARAMETER }}}').any?
+end
+{{%- endif %}}
+{{%- if VALUE %}}
+describe sshd_config do
+  its('{{{ PARAMETER }}}') { should cmp '{{{ VALUE }}}' }
+end
+{{%- elif XCCDF_VARIABLE %}}
+describe sshd_config do
+  its('{{{ PARAMETER }}}') { should_not be_nil }
+end
+{{%- endif %}}

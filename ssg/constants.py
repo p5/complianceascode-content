@@ -124,6 +124,7 @@ ansible_version_requirement_pre_task_name = \
 standard_profiles = ['standard', 'pci-dss', 'desktop', 'server']
 xslt_ns = "http://www.w3.org/1999/XSL/Transform"
 SCE_SYSTEM = "http://open-scap.org/page/SCE"
+INSPEC_SYSTEM = "urn:xccdf:check:engine:inspec"
 
 
 OVAL_SUB_NS = dict(

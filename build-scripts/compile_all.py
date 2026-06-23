@@ -41,6 +41,10 @@ def create_parser():
         help="Combined SCE metadata to read."
     )
     parser.add_argument(
+        "--inspec-metadata",
+        help="Combined InSpec metadata to read."
+    )
+    parser.add_argument(
         "--stig-references", help="DISA STIG Reference XCCDF file"
     )
     parser.add_argument(
@@ -206,8 +210,9 @@ def main():
         product_cpes.load_cpes_from_list(extra_product_yaml.get("cpes", []))
     product_cpes.load_content_cpes(env_yaml)
 
+    inspec_metadata = getattr(args, 'inspec_metadata', None)
     loader = ssg.build_yaml.BuildLoader(
-        None, env_yaml, product_cpes, args.sce_metadata)
+        None, env_yaml, product_cpes, args.sce_metadata, inspec_metadata)
     loader.load_components()
     load_benchmark_source_data_from_directory_tree(loader, env_yaml, product_yaml)
 

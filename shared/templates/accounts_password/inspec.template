@@ -1,0 +1,6 @@
+# platform = multi_platform_all
+{{%- if VARIABLE %}}
+describe parse_config_file('/etc/security/pwquality.conf') do
+  its('{{{ VARIABLE }}}') { should cmp {{{ VALUE }}} }
+end
+{{%- endif %}}

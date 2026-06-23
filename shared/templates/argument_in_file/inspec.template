@@ -1,0 +1,4 @@
+# platform = multi_platform_all
+describe file('{{{ FILEPATH }}}') do
+  its('content') { should match(/{{{ ARG_NAME }}}={{{ ARG_VALUE }}}\b/) }
+end

@@ -1,0 +1,4 @@
+# platform = multi_platform_all
+describe file('{{{ FILEPATH }}}') do
+  it { should exist }
+end

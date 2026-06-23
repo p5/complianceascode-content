@@ -1,0 +1,6 @@
+# platform = multi_platform_all
+describe auditd.file('{{{ PATH }}}') do
+  its('permissions.flatten') { should include 'x' }
+  its('action.uniq') { should eq ['always'] }
+  its('list.uniq') { should eq ['exit'] }
+end

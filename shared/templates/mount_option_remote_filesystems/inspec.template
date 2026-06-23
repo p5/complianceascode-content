@@ -1,0 +1,7 @@
+# platform = multi_platform_all
+etc_fstab.nfs_file_systems.entries.each do |entry|
+  describe mount(entry['mount_point']) do
+    it { should be_mounted }
+    its('options') { should include '{{{ MOUNTOPTION }}}' }
+  end
+end

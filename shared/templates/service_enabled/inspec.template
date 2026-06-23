@@ -1,0 +1,7 @@
+# platform = multi_platform_all
+{{%- if init_system == "systemd" %}}
+describe service('{{{ DAEMONNAME }}}') do
+  it { should be_enabled }
+  it { should be_running }
+end
+{{%- endif %}}

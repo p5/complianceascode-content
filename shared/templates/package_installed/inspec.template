@@ -1,0 +1,4 @@
+# platform = multi_platform_all
+describe package('{{{ PKGNAME }}}') do
+  it { should be_installed }
+end

@@ -1,0 +1,14 @@
+# platform = multi_platform_all
+{{% for path in FILEPATH %}}
+{{%- if IS_DIRECTORY and FILE_REGEX %}}
+command('find {{{ path }}} -maxdepth 1 -type f -regextype posix-extended -regex "{{{ FILE_REGEX[loop.index0] }}}"').stdout.strip.split("\n").each do |entry|
+  describe file(entry) do
+    its('group') { should cmp '{{{ FILEGID }}}' }
+  end
+end
+{{%- else %}}
+describe file('{{{ path }}}') do
+  its('group') { should cmp '{{{ FILEGID }}}' }
+end
+{{%- endif %}}
+{{% endfor %}}
