@@ -1,13 +1,13 @@
 # platform = multi_platform_all
 {{%- if SYSCTLVAL is string and SYSCTLVAL != "" %}}
 describe kernel_parameter('{{{ SYSCTLVAR }}}') do
-  its('value') { should cmp {{{ SYSCTLVAL }}} }
+  its('value') { should cmp '{{{ SYSCTLVAL }}}' }
 end
 {{%- elif SYSCTLVAL is not string %}}
 describe.one do
 {{% for val in SYSCTLVAL %}}
   describe kernel_parameter('{{{ SYSCTLVAR }}}') do
-    its('value') { should cmp {{{ val }}} }
+    its('value') { should cmp '{{{ val }}}' }
   end
 {{% endfor %}}
 end

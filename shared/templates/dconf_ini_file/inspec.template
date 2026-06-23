@@ -1,4 +1,4 @@
 # platform = multi_platform_all
 describe command('dconf read /{{{ SECTION }}}/{{{ PARAMETER }}}') do
-  its('stdout.strip') { should cmp '{{{ VALUE }}}' }
+  its('stdout.strip') { should cmp "{{{ VALUE }}}" }
 end

@@ -103,13 +103,13 @@ def wrap_control(rule_id, check_content, rule_data):
 
     impact = SEVERITY_TO_IMPACT.get(severity, 0.5)
 
-    title_escaped = title.replace("'", "\\\\'")
-    desc_escaped = description.replace("'", "\\\\'")
+    title_escaped = title.replace("\\", "\\\\").replace('"', '\\"')
+    desc_escaped = description.replace("\\", "\\\\").replace('"', '\\"')
 
     lines = []
     lines.append("control '%s' do" % rule_id)
-    lines.append("  title '%s'" % title_escaped)
-    lines.append("  desc '%s'" % desc_escaped)
+    lines.append('  title "%s"' % title_escaped)
+    lines.append('  desc "%s"' % desc_escaped)
     lines.append("  impact %.1f" % impact)
     lines.append("  tag severity: '%s'" % severity)
 
@@ -178,7 +178,7 @@ def build_profile(profile_id, profile_data, metadata, inspec_dir,
         "license": "Apache-2.0",
         "summary": profile_data.get("description", profile_title),
         "version": "0.1.0",
-        "supports": [{"platform-name": product}],
+        "supports": [{"os-family": "unix"}],
     }
 
     summary = re.sub(r'\s+', ' ',
