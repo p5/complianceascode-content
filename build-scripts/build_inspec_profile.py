@@ -13,6 +13,7 @@ Output:
 import argparse
 import json
 import os
+import re
 import shutil
 
 import ssg.build_yaml
@@ -78,9 +79,14 @@ def load_profiles(resolved_base):
 
 
 def load_rule_metadata(resolved_base, rule_id):
-    rule_path = os.path.join(resolved_base, "rules", rule_id + ".yml")
+    rule_path = os.path.join(resolved_base, "rules", rule_id + ".json")
+    if not os.path.exists(rule_path):
+        rule_path = os.path.join(resolved_base, "rules", rule_id + ".yml")
     if not os.path.exists(rule_path):
         return None
+    if rule_path.endswith(".json"):
+        with open(rule_path, 'r') as f:
+            return json.load(f)
     return ssg.yaml.open_raw(rule_path)
 
 
@@ -92,7 +98,8 @@ def wrap_control(rule_id, check_content, rule_data):
     if rule_data:
         severity = rule_data.get("severity", "medium")
         title = rule_data.get("title", rule_id)
-        description = rule_data.get("description", "")
+        description = re.sub(r'<[^>]+>', '', rule_data.get("description", ""))
+        description = description.replace('\n', ' ').strip()
 
     impact = SEVERITY_TO_IMPACT.get(severity, 0.5)
 
@@ -115,11 +122,12 @@ def wrap_control(rule_id, check_content, rule_data):
         refs = rule_data.get("references", {})
         for ref_type, ref_val in sorted(refs.items()):
             if ref_val:
+                tag_name = ref_type if ref_type.isidentifier() else "'%s'" % ref_type
                 if isinstance(ref_val, list):
-                    ref_str = str(ref_val)
+                    items = ", ".join("'%s'" % v for v in ref_val)
+                    lines.append("  tag %s: [%s]" % (tag_name, items))
                 else:
-                    ref_str = str(ref_val)
-                lines.append("  tag %s: '%s'" % (ref_type, ref_str.replace("'", "\\\\'")))
+                    lines.append("  tag %s: '%s'" % (tag_name, str(ref_val).replace("'", "\\'")))
 
     for line in check_content.strip().splitlines():
         lines.append("  " + line)
@@ -134,7 +142,8 @@ def build_profile(profile_id, profile_data, metadata, inspec_dir,
     controls_dir = os.path.join(profile_dir, "controls")
     mkdir_p(controls_dir)
 
-    selections = profile_data.get("selected", [])
+    selections = profile_data.get("selections", profile_data.get("selected", []))
+    selections = [s for s in selections if not s.startswith("var_") and "=" not in s]
     if not selections:
         return
 
@@ -174,10 +183,16 @@ def build_profile(profile_id, profile_data, metadata, inspec_dir,
 
     yml_path = os.path.join(profile_dir, "inspec.yml")
     with open(yml_path, 'w') as f:
-        for key in ["name", "title", "maintainer", "license", "summary", "version"]:
+        for key in ["name", "title", "maintainer", "license", "version"]:
             val = inspec_yml[key]
-            f.write("%s: %s\n" % (key, val if not isinstance(val, str)
-                                  or "'" not in val else "'%s'" % val.replace("'", "''")))
+            f.write("%s: %s\n" % (key, val))
+        summary = inspec_yml["summary"].replace('\n', ' ').strip()
+        summary = re.sub(r'\s+', ' ', summary)
+        if len(summary) > 120:
+            summary = summary[:120] + "..."
+        f.write("summary: %s\n" % summary)
+        f.write("copyright: ComplianceAsCode contributors\n")
+        f.write("copyright_email: scap-security-guide@lists.fedorahosted.org\n")
         f.write("supports:\n")
         for s in inspec_yml["supports"]:
             for k, v in s.items():
