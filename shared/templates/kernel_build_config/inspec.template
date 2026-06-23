@@ -1,9 +1,0 @@
-# platform = multi_platform_all
-kernel_config = command('zcat /proc/config.gz 2>/dev/null || cat /boot/config-$(uname -r) 2>/dev/null')
-describe kernel_config do
-{{%- if SHOULD_CHECK_ABSENCE is defined and SHOULD_CHECK_ABSENCE %}}
-  its('stdout') { should_not match(/^{{{ CONFIG }}}=/) }
-{{%- else %}}
-  its('stdout') { should match(/^{{{ CONFIG }}}={{{ VALUE }}}$/) }
-{{%- endif %}}
-end

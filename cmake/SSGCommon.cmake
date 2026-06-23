@@ -120,22 +120,20 @@ macro(ssg_build_compiled_artifacts PRODUCT)
         add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ssg_build_compile_all-${PRODUCT}"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/profiles"
-            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${Python_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/compile_all.py" --resolved-base "${CMAKE_CURRENT_BINARY_DIR}" --project-root "${CMAKE_SOURCE_DIR}" --build-config-yaml "${CMAKE_BINARY_DIR}/build_config.yml" --product-yaml "${CMAKE_CURRENT_BINARY_DIR}/product.yml" --sce-metadata "${CMAKE_CURRENT_BINARY_DIR}/checks/sce/metadata.json" --inspec-metadata "${CMAKE_CURRENT_BINARY_DIR}/checks/inspec/metadata.json" --rule-id "${SSG_THIN_DS_RULE_ID}"
+            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${Python_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/compile_all.py" --resolved-base "${CMAKE_CURRENT_BINARY_DIR}" --project-root "${CMAKE_SOURCE_DIR}" --build-config-yaml "${CMAKE_BINARY_DIR}/build_config.yml" --product-yaml "${CMAKE_CURRENT_BINARY_DIR}/product.yml" --sce-metadata "${CMAKE_CURRENT_BINARY_DIR}/checks/sce/metadata.json" --rule-id "${SSG_THIN_DS_RULE_ID}"
             COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/ssg_build_compile_all-${PRODUCT}"
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/product.yml"
             DEPENDS generate-internal-${PRODUCT}-sce-metadata.json "${CMAKE_CURRENT_BINARY_DIR}/checks/sce/metadata.json"
-            DEPENDS generate-internal-${PRODUCT}-inspec-metadata.json "${CMAKE_CURRENT_BINARY_DIR}/checks/inspec/metadata.json"
             COMMENT "[${PRODUCT}-content] compiling everything"
         )
     else()
         add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ssg_build_compile_all-${PRODUCT}"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/profiles"
-            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${Python_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/compile_all.py" --resolved-base "${CMAKE_CURRENT_BINARY_DIR}" --project-root "${CMAKE_SOURCE_DIR}" --build-config-yaml "${CMAKE_BINARY_DIR}/build_config.yml" --product-yaml "${CMAKE_CURRENT_BINARY_DIR}/product.yml" --sce-metadata "${CMAKE_CURRENT_BINARY_DIR}/checks/sce/metadata.json" --inspec-metadata "${CMAKE_CURRENT_BINARY_DIR}/checks/inspec/metadata.json" --stig-references "${STIG_REFERENCE_FILE}" --rule-id "${SSG_THIN_DS_RULE_ID}"
+            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${Python_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/compile_all.py" --resolved-base "${CMAKE_CURRENT_BINARY_DIR}" --project-root "${CMAKE_SOURCE_DIR}" --build-config-yaml "${CMAKE_BINARY_DIR}/build_config.yml" --product-yaml "${CMAKE_CURRENT_BINARY_DIR}/product.yml" --sce-metadata "${CMAKE_CURRENT_BINARY_DIR}/checks/sce/metadata.json" --stig-references "${STIG_REFERENCE_FILE}" --rule-id "${SSG_THIN_DS_RULE_ID}"
             COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/ssg_build_compile_all-${PRODUCT}"
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/product.yml"
             DEPENDS generate-internal-${PRODUCT}-sce-metadata.json "${CMAKE_CURRENT_BINARY_DIR}/checks/sce/metadata.json"
-            DEPENDS generate-internal-${PRODUCT}-inspec-metadata.json "${CMAKE_CURRENT_BINARY_DIR}/checks/inspec/metadata.json"
             COMMENT "[${PRODUCT}-content] compiling everything"
         )
     endif()
@@ -441,9 +439,9 @@ macro(ssg_build_inspec PRODUCT)
     if(SSG_INSPEC_ENABLED)
         add_custom_command(
             OUTPUT "${BUILD_CHECKS_DIR}/inspec/metadata.json"
-            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${Python_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/build_inspec.py" --build-config-yaml "${CMAKE_BINARY_DIR}/build_config.yml" --product-yaml "${CMAKE_CURRENT_BINARY_DIR}/product.yml" --templates-dir "${SSG_SHARED}/templates" --output "${BUILD_CHECKS_DIR}/inspec"
-            COMMENT "[${PRODUCT}-content] generating inspec/metadata.json"
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/product.yml"
+            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${Python_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/build_inspec.py" --oval-file "${CMAKE_CURRENT_BINARY_DIR}/ssg-${PRODUCT}-oval.xml" --templates-dir "${SSG_SHARED}/inspec_templates" --output "${BUILD_CHECKS_DIR}/inspec"
+            COMMENT "[${PRODUCT}-content] generating InSpec checks from OVAL"
+            DEPENDS generate-ssg-${PRODUCT}-oval.xml "${CMAKE_CURRENT_BINARY_DIR}/ssg-${PRODUCT}-oval.xml"
         )
     else()
         add_custom_command(
@@ -840,7 +838,6 @@ macro(ssg_build_product PRODUCT)
     endif()
     ssg_build_compiled_artifacts(${PRODUCT})
     ssg_build_sce(${PRODUCT})
-    ssg_build_inspec(${PRODUCT})
     ssg_build_xccdf_oval_ocil(${PRODUCT})
     ssg_make_all_tables(${PRODUCT})
     ssg_build_templated_content(${PRODUCT})
@@ -860,6 +857,7 @@ macro(ssg_build_product PRODUCT)
     ssg_build_xml_final(${PRODUCT} xccdf)
     ssg_build_xml_final(${PRODUCT} oval)
     ssg_build_xml_final(${PRODUCT} ocil)
+    ssg_build_inspec(${PRODUCT})
     ssg_build_sds(${PRODUCT})
 
     # Build CEL content if enabled for this product
@@ -883,6 +881,7 @@ macro(ssg_build_product PRODUCT)
         generate-ssg-${PRODUCT}-xccdf.xml
         generate-ssg-${PRODUCT}-oval.xml
         generate-ssg-${PRODUCT}-ocil.xml
+        generate-internal-${PRODUCT}-inspec-metadata.json
         generate-ssg-${PRODUCT}-manifest.json
         generate-ssg-${PRODUCT}-cpe-dictionary.xml
         generate-ssg-${PRODUCT}-ds.xml

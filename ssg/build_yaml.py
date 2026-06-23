@@ -24,7 +24,6 @@ from .constants import (XCCDF12_NS,
                         OSCAP_GROUP,
                         OSCAP_RULE,
                         OSCAP_VALUE,
-                        INSPEC_SYSTEM,
                         SCE_SYSTEM,
                         cce_uri,
                         dc_namespace,
@@ -1701,7 +1700,6 @@ class Rule(XCCDFEntity, Templatable):
     def __init__(self, id_):
         super(Rule, self).__init__(id_)
         self.sce_metadata = None
-        self.inspec_metadata = None
 
     def __deepcopy__(self, memo):
         """
@@ -1778,8 +1776,7 @@ class Rule(XCCDFEntity, Templatable):
             rule.cpe_platform_names.add(cpe_platform.id_)
 
     @classmethod
-    def from_yaml(cls, yaml_file, env_yaml=None, product_cpes=None, sce_metadata=None,
-                  inspec_metadata=None):
+    def from_yaml(cls, yaml_file, env_yaml=None, product_cpes=None, sce_metadata=None):
         """
         Creates a Rule object from a YAML file.
 
@@ -1855,11 +1852,6 @@ class Rule(XCCDFEntity, Templatable):
             rule.sce_metadata = sce_metadata[rule.id_]
             rule.sce_metadata["relative_path"] = os.path.join(
                 env_yaml["product"], "checks/sce", rule.sce_metadata['filename'])
-
-        if inspec_metadata and rule.id_ in inspec_metadata:
-            rule.inspec_metadata = inspec_metadata[rule.id_]
-            rule.inspec_metadata["relative_path"] = os.path.join(
-                env_yaml["product"], "checks/inspec", rule.inspec_metadata['filename'])
 
         rule.validate_identifiers(yaml_file)
         rule.validate_references(yaml_file)
@@ -2443,17 +2435,6 @@ class Rule(XCCDFEntity, Templatable):
             self._add_sce_check_export_element(sce_check_el)
         self._add_sce_check_content_ref_element(sce_check_el)
 
-    def _add_inspec_check_element(self, rule_el):
-        if not self.inspec_metadata:
-            return
-
-        check_el = ElementTree.SubElement(rule_el, "{%s}check" % XCCDF12_NS)
-        check_el.set("system", INSPEC_SYSTEM)
-
-        ref_el = ElementTree.SubElement(check_el, "{%s}check-content-ref" % XCCDF12_NS)
-        ref_el.set("href", self.inspec_metadata['relative_path'])
-        ref_el.set("name", self.id_)
-
     def _add_oval_check_element(self, rule_el):
         """
         Adds an OVAL check element to the given rule element.
@@ -2554,7 +2535,6 @@ class Rule(XCCDFEntity, Templatable):
         self._add_fixes_elements(rule)
 
         self._add_sce_check_element(rule)
-        self._add_inspec_check_element(rule)
         self._add_oval_check_element(rule)
         self._add_ocil_check_element(rule)
 
@@ -2942,23 +2922,18 @@ class BuildLoader(DirectoryLoader):
 
     Attributes:
         sce_metadata (dict): Metadata for SCE, loaded from a JSON file.
-        inspec_metadata (dict): Metadata for InSpec, loaded from a JSON file.
         components_dir (str): Absolute path to the components directory.
         rule_to_components (dict): Mapping of rules to their respective components.
     """
     def __init__(
             self, profiles_dir, env_yaml, product_cpes,
-            sce_metadata_path=None, inspec_metadata_path=None):
+            sce_metadata_path=None):
         super(BuildLoader, self).__init__(profiles_dir, env_yaml, product_cpes)
 
         self.sce_metadata = None
         if sce_metadata_path and os.path.getsize(sce_metadata_path):
             with open(sce_metadata_path, 'r') as f:
                 self.sce_metadata = json.load(f)
-        self.inspec_metadata = None
-        if inspec_metadata_path and os.path.getsize(inspec_metadata_path):
-            with open(inspec_metadata_path, 'r') as f:
-                self.inspec_metadata = json.load(f)
         self.components_dir = None
         self.rule_to_components = None
 
@@ -3053,8 +3028,7 @@ class BuildLoader(DirectoryLoader):
         for rule_yaml in self.rule_files:
             try:
                 rule = Rule.from_yaml(
-                    rule_yaml, self.env_yaml, self.product_cpes, self.sce_metadata,
-                    self.inspec_metadata)
+                    rule_yaml, self.env_yaml, self.product_cpes, self.sce_metadata)
             except DocumentationNotComplete:
                 # Happens on non-debug build when a rule is "documentation-incomplete"
                 continue
@@ -3076,7 +3050,6 @@ class BuildLoader(DirectoryLoader):
             self.profiles_dir, self.env_yaml, self.product_cpes)
         # Do it this way so we only have to parse the SCE metadata once.
         loader.sce_metadata = self.sce_metadata
-        loader.inspec_metadata = self.inspec_metadata
         # Do it this way so we only have to parse the component metadata once.
         loader.rule_to_components = self.rule_to_components
         loader.components_dir = self.components_dir

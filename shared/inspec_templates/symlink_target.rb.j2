@@ -1,0 +1,4 @@
+describe file("{{ filepath }}") do
+  it { should be_symlink }
+  its("link_path") { should match(/{{ target_pattern }}/) }
+end

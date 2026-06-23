@@ -1,4 +1,0 @@
-# platform = multi_platform_all
-describe file('/proc/cmdline') do
-  its('content') { should_not match(/{{{ ARG_NAME }}}/) }
-end

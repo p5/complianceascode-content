@@ -1,4 +1,0 @@
-# platform = multi_platform_all
-describe parse_config_file('/etc/audit/auditd.conf') do
-  its('{{{ PARAMETER }}}') { should cmp '{{{ VALUE }}}' }
-end

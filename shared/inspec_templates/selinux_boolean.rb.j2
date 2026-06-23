@@ -1,0 +1,3 @@
+describe command("getsebool {{ name }}") do
+  its("stdout") { should match(/-->\s+{{ expected }}/) }
+end

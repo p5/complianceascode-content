@@ -1,0 +1,5 @@
+if file("{{ filepath }}").exist?
+  describe xml("{{ filepath }}") do
+    its("{{ xpath }}") { should_not be_empty }
+  end
+end

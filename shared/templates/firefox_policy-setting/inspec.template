@@ -1,6 +1,0 @@
-# platform = multi_platform_all
-{{% for policy in POLICIES %}}
-describe json('/etc/firefox/policies/policies.json') do
-  its(['policies', '{{{ policy["parameter"] }}}']) { should_not be_nil }
-end
-{{% endfor %}}

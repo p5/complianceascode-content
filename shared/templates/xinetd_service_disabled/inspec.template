@@ -1,4 +1,0 @@
-# platform = multi_platform_all
-describe xinetd_conf.services('{{{ SERVICENAME }}}') do
-  it { should be_disabled }
-end

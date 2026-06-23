@@ -1,4 +1,0 @@
-# platform = multi_platform_all
-describe service('{{{ TIMERNAME }}}.timer') do
-  it { should be_enabled }
-end

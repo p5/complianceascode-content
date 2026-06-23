@@ -1,5 +1,0 @@
-# platform = multi_platform_all
-describe auditd.file('{{{ PATH }}}') do
-  its('permissions.flatten') { should include 'w' }
-  its('permissions.flatten') { should include 'a' }
-end

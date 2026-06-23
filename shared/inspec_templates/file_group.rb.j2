@@ -1,0 +1,5 @@
+if file("{{ filepath }}").exist?
+  describe file("{{ filepath }}") do
+    its("gid") { should cmp {{ gid }} }
+  end
+end

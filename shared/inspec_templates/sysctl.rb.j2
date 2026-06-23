@@ -1,0 +1,3 @@
+describe kernel_parameter("{{ name }}") do
+  its("value") { should cmp "{{ value }}" }
+end

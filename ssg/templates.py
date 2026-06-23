@@ -30,7 +30,6 @@ LANGUAGES = {
     "blueprint": TemplatingLang("blueprint", ".toml",   TemplateType.REMEDIATION, "blueprint"),
     "cpe-oval": TemplatingLang("cpe-oval", ".xml",      TemplateType.CHECK,       "cpe-oval"),
     "ignition": TemplatingLang("ignition", ".yml",      TemplateType.REMEDIATION, "ignition"),
-    "inspec": TemplatingLang("inspec", ".rb",           TemplateType.CHECK,       "inspec"),
     "kubernetes": TemplatingLang("kubernetes", ".yml",  TemplateType.REMEDIATION, "kubernetes"),
     "oval": TemplatingLang("oval", ".xml",              TemplateType.CHECK,       "oval"),
     "puppet": TemplatingLang("puppet", ".pp",           TemplateType.REMEDIATION, "puppet"),

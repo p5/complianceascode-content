@@ -1,8 +1,0 @@
-# platform = multi_platform_all
-command("findmnt --fstab -t nfs,nfs4 -n -o TARGET 2>/dev/null").stdout.strip.split("\n").each do |mp|
-  next if mp.empty?
-  describe mount(mp) do
-    it { should be_mounted }
-    its('options') { should include '{{{ MOUNTOPTION }}}' }
-  end
-end

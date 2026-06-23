@@ -1,4 +1,0 @@
-# platform = multi_platform_all
-describe auditd do
-  its('lines') { should include(/-S {{{ SYSCALL }}}/) }
-end

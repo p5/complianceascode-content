@@ -1,7 +1,0 @@
-# platform = multi_platform_all
-['b32', 'b64'].each do |the_arch|
-  describe auditd.syscall('{{{ ATTR }}}').where(arch: the_arch) do
-    its('action.uniq') { should eq ['always'] }
-    its('list.uniq') { should eq ['exit'] }
-  end
-end

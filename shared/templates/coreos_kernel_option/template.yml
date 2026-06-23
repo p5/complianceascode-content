@@ -1,4 +1,3 @@
 supported_languages:
-  - inspec
   - kubernetes
   - oval

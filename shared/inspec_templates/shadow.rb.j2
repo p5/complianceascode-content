@@ -1,0 +1,5 @@
+describe shadow do
+{% for check in checks %}
+  its("{{ check.field }}") { should all(be {{ check.op }} {{ check.value }}) }
+{% endfor %}
+end

@@ -1,4 +1,0 @@
-# platform = multi_platform_all
-describe file('{{{ PATH }}}') do
-  its('content') { should match(/^\s*{{{ KEY }}}\s*{{{ SEP }}}\s*{{{ VALUE }}}/) }
-end

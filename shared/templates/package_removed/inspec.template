@@ -1,6 +1,0 @@
-# platform = multi_platform_all
-{{% for PKGNAME in PACKAGES %}}
-describe package('{{{ PKGNAME }}}') do
-  it { should_not be_installed }
-end
-{{% endfor %}}

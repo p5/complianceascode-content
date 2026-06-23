@@ -1,6 +1,0 @@
-# platform = multi_platform_all
-describe kernel_module('{{{ KERNMODULE }}}') do
-  it { should_not be_loaded }
-  it { should be_disabled }
-  it { should be_blacklisted }
-end

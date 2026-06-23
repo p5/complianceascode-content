@@ -1,5 +1,4 @@
 supported_languages:
-  - inspec
   - bash
   - oval
   - ansible

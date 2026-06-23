@@ -1,0 +1,5 @@
+if file("{{ filepath }}").exist?
+  describe file("{{ filepath }}") do
+    its("content") { should_not match(/{{ pattern }}/) }
+  end
+end

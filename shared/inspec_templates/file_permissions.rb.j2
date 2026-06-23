@@ -1,0 +1,5 @@
+if file("{{ filepath }}").exist?
+  describe file("{{ filepath }}") do
+    it { should_not be_more_permissive_than("{{ mode }}") }
+  end
+end
